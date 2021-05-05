@@ -1,6 +1,6 @@
 # AutoClip video generator
 Generate video clips / compilations from AutoClip datasets. Requires Python, youtube-dl and ffmpeg. 
-Optionally requires the vcsi Python package for thumbnail generation.
+Optionally requires the vcsi Python package for thumbnail generation. [This YouTube channel](https://www.youtube.com/channel/UC6sfBMKXtwZBJ7j5WPyvf6g/videos) has examples of generated videos.
 
 ## Usage
 
