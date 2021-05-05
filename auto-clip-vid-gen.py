@@ -5,6 +5,8 @@ import subprocess
 import os
 import shutil
 
+import streamers
+
 #arguments
 parser = argparse.ArgumentParser(description="AutoClip CSV to Video")
 parser.add_argument('path', type=str, help="Path to AutoClip CSV")
@@ -17,17 +19,14 @@ parser.add_argument("--thumb", '-t', action="store_true", help="Generate thumbna
 
 args = parser.parse_args()
 
-#grouping lists
-hljp = ['AZki', 'Miko', 'Roboco', 'Sora', 'Suisei', 'Mel', 'Haato', 'Fubuki', 'Matsuri', 'Aki', 'Shion', 'Aqua',
-    'Ayame', 'Choco', 'Subaru', 'Korone', 'Mio', 'Okayu', 'Noel', 'Rushia', 'Pekora', 'Flare', 'Marine',
-    'Luna', 'Coco', 'Watame', 'Kanata', 'Towa', 'Lamy', 'Nene', 'Botan', 'Polka']
-hlen = ['Calli', 'Kiara', 'Ina', 'Gura', 'Amelia']
-hlid = ['Risu', 'Moona', 'Iofi', 'Reine', 'Anya', 'Ollie']
-hstars = ['Miyabi', 'Kira', 'Izuru', 'Aruran', 'Rikka', 'Astel', 'Temma', 'Roberu', 'Shien', 'Oga']
+clip_dir = "clips"
+
+if not os.path.isdir(clip_dir):
+    os.mkdir(clip_dir)
 
 if args.delete:
-    shutil.rmtree("vidtmp/")
-    os.mkdir("vidtmp/")
+    shutil.rmtree(clip_dir)
+    os.mkdir(clip_dir)
 
 #open csv, make clip from each line
 with open(args.path, newline='') as csvfile:
@@ -44,13 +43,15 @@ with open(args.path, newline='') as csvfile:
         arg_list = args.streamer.split()
         for item in arg_list:
             if item == 'hljp':
-                streamer_list += hljp
+                streamer_list += streamers.hljp
             elif item == 'hlen':
-                streamer_list += hlen
+                streamer_list += streamers.hlen
             elif item == 'hlid':
-                streamer_list += hlid
+                streamer_list += streamers.hlid
             elif item == 'hstars':
-                streamer_list += hstars
+                streamer_list += streamers.hstars
+            elif item in streamers.streamer_dict:
+                streamer_list += streamers.streamer_dict[item]
             else:
                 streamer_list.append(item)
                 
@@ -72,18 +73,20 @@ with open(args.path, newline='') as csvfile:
                     
             #write new streamer timestamp for YT descriptions
             if streamer != last_streamer:
-                cliplist.write(str(streamer_tstamp) + " - " + streamer + '\n')
+                cliplist.write(str(streamer_tstamp).split(".")[0] + " - " + streamer + '\n')
+                if streamer in streamers.channel_ids:
+                    cliplist.write(f"https://www.youtube.com/channel/{streamers.channel_ids[streamer]}\n")
                 last_streamer = streamer
                 
             url = full_url.split('&')[0]
             vid_id = url.split('=')[1]
             timecode = full_url.split('=')[2]
-            filename = f"vidtmp/{vid_id}.mp4"
+            filename = f"{clip_dir}/{vid_id}.mp4"
             url_list.append(url)
             
             #process stream if file doesn't exist
             if not os.path.exists(filename):
-                proc = subprocess.Popen(f"/usr/local/bin/youtube-dl --youtube-skip-dash-manifest -g \"{url}\"", stdout=subprocess.PIPE, shell=True)
+                proc = subprocess.Popen(f"youtube-dl --youtube-skip-dash-manifest -g \"{url}\"", stdout=subprocess.PIPE, shell=True)
                 vid_strm = proc.communicate()[0]
                 vid_strm = vid_strm.decode('utf-8').split('\n')
                 
@@ -102,7 +105,12 @@ with open(args.path, newline='') as csvfile:
                 
             
             filelist.write(f"file \'{filename}\'\n")
-            streamer_tstamp += datetime.timedelta(seconds=60)
+            
+            #calculate timestamp
+            proc = subprocess.Popen(f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {filename}", stdout=subprocess.PIPE, shell=True)
+            duration = proc.communicate()[0]
+            duration = float(duration.decode('utf-8'))
+            streamer_tstamp += datetime.timedelta(seconds=duration)
 
 
             
@@ -115,3 +123,6 @@ with open(args.path, newline='') as csvfile:
         if args.thumb:
             proc = subprocess.Popen(f"vcsi {args.output} -g 2x2 -w 1280 --metadata-position hidden", shell=True)
             out = proc.communicate()
+            
+    filelist.close()
+    os.remove("filelist.txt")
