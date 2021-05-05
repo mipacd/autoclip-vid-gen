@@ -32,7 +32,7 @@ if args.delete:
 with open(args.path, newline='') as csvfile:
     csvreader = csv.reader(csvfile)
     filelist = open("filelist.txt", 'w')
-    cliplist = open("cliplist.txt", 'w')
+    desc_file = open("description.txt", 'w')
     count = 0
     streamer_tstamp = datetime.timedelta(seconds=0)
     last_streamer = ""
@@ -73,9 +73,9 @@ with open(args.path, newline='') as csvfile:
                     
             #write new streamer timestamp for YT descriptions
             if streamer != last_streamer:
-                cliplist.write(str(streamer_tstamp).split(".")[0] + " - " + streamer + '\n')
+                desc_file.write(str(streamer_tstamp).split(".")[0] + " - " + streamer + '\n')
                 if streamer in streamers.channel_ids:
-                    cliplist.write(f"https://www.youtube.com/channel/{streamers.channel_ids[streamer]}\n")
+                    desc_file.write(f"https://www.youtube.com/channel/{streamers.channel_ids[streamer]}\n")
                 last_streamer = streamer
                 
             url = full_url.split('&')[0]
