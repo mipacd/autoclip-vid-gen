@@ -32,7 +32,7 @@ if args.delete:
 with open(args.path, newline='') as csvfile:
     csvreader = csv.reader(csvfile)
     filelist = open("filelist.txt", 'w')
-    cliplist = open("cliplist.txt", 'w')
+    desc_file = open("description.txt", 'w')
     count = 0
     streamer_tstamp = datetime.timedelta(seconds=0)
     last_streamer = ""
