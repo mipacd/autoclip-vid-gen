@@ -42,18 +42,19 @@ with open(args.path, newline='') as csvfile:
     if args.streamer:
         arg_list = args.streamer.split()
         for item in arg_list:
-            if item == 'hljp':
+            item_lower = item.lower()
+            if item_lower == 'hljp':
                 streamer_list += streamers.hljp
-            elif item == 'hlen':
+            elif item_lower == 'hlen':
                 streamer_list += streamers.hlen
-            elif item == 'hlid':
+            elif item_lower == 'hlid':
                 streamer_list += streamers.hlid
-            elif item == 'hstars':
+            elif item_lower == 'hstars':
                 streamer_list += streamers.hstars
-            elif item in streamers.streamer_dict:
+            elif item_lower in streamers.streamer_dict:
                 streamer_list += streamers.streamer_dict[item]
             else:
-                streamer_list.append(item)
+                streamer_list.append(item_lower)
                 
     for row in csvreader:
         full_url = row[2]
@@ -74,8 +75,8 @@ with open(args.path, newline='') as csvfile:
             #write new streamer timestamp for YT descriptions
             if streamer != last_streamer:
                 cliplist.write(str(streamer_tstamp).split(".")[0] + " - " + streamer + '\n')
-                if streamer in streamers.channel_ids:
-                    cliplist.write(f"https://www.youtube.com/channel/{streamers.channel_ids[streamer]}\n")
+                if streamer.lower() in streamers.channel_ids:
+                    cliplist.write(f"https://www.youtube.com/channel/{streamers.channel_ids[streamer.lower()]}\n")
                 last_streamer = streamer
                 
             url = full_url.split('&')[0]
