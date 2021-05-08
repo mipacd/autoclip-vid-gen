@@ -4,7 +4,7 @@ Optionally requires the vcsi Python package for thumbnail generation. [This YouT
 
 ## Usage
 
-1. Clone dataset from https://github.com/mipacd/auto-clip. Dataset generation from user specified channels/date ranges is a TODO.
+1. Use the dataset from https://github.com/mipacd/auto-clip or [generate your own](https://github.com/mipacd/auto-clip-tool).
 2. Run on a CSV to generate a compilation: `python3 ./auto-clip-vid-gen.py -s hlen -t ../auto-clip/csv/hl/humor/2021-4-25.csv hlen-funny-comp-2021-04-25.mp4`
 3. One minute clips from each stream are downloaded to ./clips/. Timestamps and channel citations are saved in description.txt.
 
